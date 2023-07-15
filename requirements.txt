@@ -1,0 +1,7 @@
+coppeliasim-zmqremoteapi-client
+numpy
+imutils
+opencv-python
+requests
+gpt4all
+nltk
