@@ -5,3 +5,6 @@ opencv-python
 requests
 gpt4all
 nltk
+matplotlib
+py-cpuinfo
+cdifflib
