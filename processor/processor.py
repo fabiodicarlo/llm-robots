@@ -12,8 +12,10 @@ class Processor:
         self.sensors = Sensors(self.sim)
         self.actuator = Actuator(self.sim)
         self.object_detector = object_detector.ObjectDetector(self.sim, self.actuator, self.sensors)
+        self.actuator.stop()
 
     def execute_cmd(self, command):
+
         if command == 'follow':
             self.object_detector.start_detector(self.sensors.vision_sensor_handle)
             return 'follow'
@@ -37,8 +39,7 @@ class Processor:
             cv2.destroyAllWindows()
             self.actuator.back()
             return None
-
-    # def background_task_chat(self, chat):
+        return None
 
     def brain(self, command=None):
         if command is not None:

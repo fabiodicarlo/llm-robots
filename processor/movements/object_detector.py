@@ -2,17 +2,13 @@ import cv2
 import numpy as np
 from .movements import calculate_wheel_speed
 
+
 class ObjectDetector:
 
     def __init__(self, sim, actuator, sensors):
         self.sim = sim
         self.actuator = actuator
         self.sensors = sensors
-
-    def inside(self, r, q):
-        rx, ry, rw, rh = r
-        qx, qy, qw, qh = q
-        return rx > qx and ry > qy and rx + rw < qx + qw and ry + rh < qy + qh
 
     def draw_detections(self, img, rects, thickness=1):
         for x, y, w, h in rects:
@@ -36,18 +32,21 @@ class ObjectDetector:
         hog = cv2.HOGDescriptor()
         hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
-        rects, weights = hog.detectMultiScale(vision_sensor, winStride=(8, 8), padding=(32, 32), scale=1.05)
+        rects, weights = hog.detectMultiScale(vision_sensor, winStride=(8, 8), padding=(32, 32), scale=1.01)
 
-        found_filtered = []
-        for ri, r in enumerate(rects):
-            for qi, q in enumerate(rects):
-                if ri != qi and self.inside(r, q):
-                    break
-                else:
-                    found_filtered.append(r)
-                    angle1 = self.draw_detections(vision_sensor, rects)
-                    angle2 = self.draw_detections(vision_sensor, found_filtered, 3)
-                    self.actuator.move(calculate_wheel_speed(self.sensors, -max(angle1, angle2), True))
+        if len(rects) > 0:
+            # Trova il centro dell'oggetto principale
+            main_obj = max(rects, key=lambda r: r[2] * r[3])
+            angle = self.angle_obj(main_obj, vision_sensor)
+
+            # Disegna il rettangolo attorno all'oggetto principale
+            self.draw_detections(vision_sensor, [main_obj], thickness=1)
+
+            print(angle)
+            # Muovi il robot
+            self.actuator.move(calculate_wheel_speed(self.sensors, -angle, True))
+        else:
+            self.actuator.stop()
 
         if vision_sensor is not None:
             cv2.imshow('object_detector', vision_sensor)
