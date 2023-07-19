@@ -29,8 +29,7 @@ if __name__ == '__main__':
     interaction_thread.start()
 
     while sim.getSimulationTime() < simulation_time:
-        # chat_str = robot.brain(chat_str)
-        chat_str = robot.brain('follow')
+        chat_str = robot.brain(chat_str)
         client.step()
 
     sim.stopSimulation()

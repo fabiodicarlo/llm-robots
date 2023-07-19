@@ -1,39 +1,29 @@
 import requests
-import json
+import logging
 
-headers = {'ngrok-skip-browser-warning': 'true'}
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 class LlmApi:
     def __init__(self):
-        self.base_url = 'https://c598-35-192-57-179.ngrok-free.app'
-        self.url_colab_question = self.base_url + '/ai/question'
-        self.url_colab_answer = self.base_url + '/ai/answer'
-        self.url_colab_queue = self.base_url + '/ai/queue'
+        self.base_url = 'http://127.0.0.1:6500'
+        self.url_input_data = self.base_url + '/api/input_data/'
+        self.url_check_status = self.base_url + '/api/check_status/'
+        self.url_get_processed_data = self.base_url + '/api/get_processed_data/'
 
-    def schema_answer(self):
-        schema = {
-            "type": "object",
-            "properties": {
-                "subject": {"type": "string"},
-                "verb": {"type": "string"},
-                "object": {"type": "string"},
-            }
-        }
-        return schema
+    def check_status(self):
+        response = requests.post(self.url_check_status)
+        logging.debug(response.json())
+        return response.json()["ready"]
 
-    def api_start_queue(self):
-        requests.post(self.url_colab_queue, headers=headers, timeout=None)
+    def set_data(self, question):
+        response = requests.post(self.url_input_data, json={"command": question})
+        logging.debug(response.json())
 
-    def api_send_question(self, question):
-        data = {
-            'question': question,
-            'schema': json.dumps(self.schema_answer())
-        }
-        requests.post(self.url_colab_question, headers=headers, data=data, timeout=None)
-
-    def api_get_answer(self):
-        response = requests.post(self.url_colab_answer, headers=headers, timeout=None)
+    def get_processed_data(self):
+        response = requests.post(self.url_get_processed_data)
         if response.status_code == 200:
-            return response.json()
+            result = response.json()
+            logging.debug(result)
+            return result
         return None

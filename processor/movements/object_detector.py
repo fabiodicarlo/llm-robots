@@ -42,7 +42,6 @@ class ObjectDetector:
             # Disegna il rettangolo attorno all'oggetto principale
             self.draw_detections(vision_sensor, [main_obj], thickness=1)
 
-            print(angle)
             # Muovi il robot
             self.actuator.move(calculate_wheel_speed(self.sensors, -angle, True))
         else:
